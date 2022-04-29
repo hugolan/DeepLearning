@@ -1,1 +1,3 @@
-"# DeepLearning" 
+# DeepLearning
+
+The data is available at https://drive.google.com/drive/u/2/folders/1CYsJ5gJkZWZAXJ1oQgUpGX7q5PxYEuNs (use an EPFL google account)
