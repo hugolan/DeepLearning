@@ -18,7 +18,7 @@ class Conv2dBatch(nn.Module):
         x = self.convolution(x)
         return x
 
-class Contract(nn.Module):
+class Encode(nn.Module):
     # 1 contraction step in the network
     def __init__(self, in_ch, out_ch):
         super().__init__()
@@ -31,7 +31,7 @@ class Contract(nn.Module):
         return x
 
     
-class Expand(nn.Module):
+class Decode(nn.Module):
     # 1 expansion step in the network
     def __init__(self, in_ch, out_ch):
         super().__init__()
@@ -50,28 +50,26 @@ class Expand(nn.Module):
         x = self.convolution(x)
         return x
 
-
+# From https://arxiv.org/abs/1505.04597
 class UNet(nn.Module):
     def __init__(self, in_ch, out_ch):
         super(UNet, self).__init__()
         
         self.InConvBatch = Conv2dBatch(in_ch, 64)
 
-        self.Contract1 = Contract(64, 128)
-        self.Contract2 = Contract(128, 256)
-        self.Contract3 = Contract(256, 512)
-        self.Contract4 = Contract(512, 1024)
-        self.Contract5 = Contract(1024, 2048)
-        #self.Contract6 = Contract(2048, 4096)
+        self.Contract1 = Encode(64, 128)
+        self.Contract2 = Encode(128, 256)
+        self.Contract3 = Encode(256, 512)
+        self.Contract4 = Encode(512, 1024)
+        #self.Contract5 = Encode(1024, 2048)
             
-        #self.Expand6 = Expand(4096, 2048)
-        self.Expand5 = Expand(2048, 1024)
-        self.Expand4 = Expand(1024, 512)
-        self.Expand3 = Expand(512, 256)
-        self.Expand2 = Expand(256, 128)
-        self.Expand1 = Expand(128, 64)
+        #self.Expand5 = Decode(2048, 1024)
+        self.Expand4 = Decode(1024, 512)
+        self.Expand3 = Decode(512, 256)
+        self.Expand2 = Decode(256, 128)
+        self.Expand1 = Decode(128, 64)
 
-        self.OutConv = nn.Conv2d(64, out_ch, 1) # 1x1 convolution to transfer back to 1 channel
+        self.OutConv = nn.Conv2d(64, out_ch, 1) # 1x1 convolution to transfer back to out channel
 
     def forward(self, x):
         x1 = self.InConvBatch(x)
@@ -79,12 +77,10 @@ class UNet(nn.Module):
         x2 = self.Contract1(x1)
         x3 = self.Contract2(x2)
         x4 = self.Contract3(x3)
-        x5 = self.Contract4(x4)
-        x = self.Contract5(x5)
-        #x = self.Contract6(x6)
+        x = self.Contract4(x4)
+        #x = self.Contract5(x5)
         
-        #x = self.Expand6(x, x6)
-        x = self.Expand5(x, x5)
+        #x = self.Expand5(x, x5)
         x = self.Expand4(x, x4)
         x = self.Expand3(x, x3)
         x = self.Expand2(x, x2)

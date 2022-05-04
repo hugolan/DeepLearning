@@ -1,3 +1,4 @@
-val_data.pkl
-train_data.pkl
+*.pkl
+*.pth
 .ipynb_checkpoints/
+__pycache__/
