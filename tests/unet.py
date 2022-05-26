@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+
 class Conv2dBatch(nn.Module):
     def __init__(self, in_ch, out_ch):
         super().__init__()
@@ -18,6 +19,7 @@ class Conv2dBatch(nn.Module):
         x = self.convolution(x)
         return x
 
+
 class Encode(nn.Module):
     # 1 contraction step in the network
     def __init__(self, in_ch, out_ch):
@@ -30,14 +32,15 @@ class Encode(nn.Module):
         x = self.convolution(x)
         return x
 
-    
+
 class Decode(nn.Module):
     # 1 expansion step in the network
     def __init__(self, in_ch, out_ch):
         super().__init__()
         self.up_convolution = nn.Sequential(
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(in_ch, out_ch, 3, padding=1), # Notice a kernel size of 3x3 instead of 2x2 as specified in the paper. This is to promote implementation  simplicity
+            nn.Conv2d(in_ch, out_ch, 3, padding=1),
+            # Notice a kernel size of 3x3 instead of 2x2 as specified in the paper. This is to promote implementation  simplicity
             nn.BatchNorm2d(out_ch),
             nn.ReLU(inplace=True),
             nn.Dropout2d(p=0.2)
@@ -50,11 +53,12 @@ class Decode(nn.Module):
         x = self.convolution(x)
         return x
 
+
 # From https://arxiv.org/abs/1505.04597
 class UNet(nn.Module):
     def __init__(self, in_ch, out_ch):
         super(UNet, self).__init__()
-        
+
         self.InConvBatch = Conv2dBatch(in_ch, 64)
 
         self.Contract1 = Encode(64, 128)
@@ -62,14 +66,14 @@ class UNet(nn.Module):
         self.Contract3 = Encode(256, 512)
         self.Contract4 = Encode(512, 1024)
         #self.Contract5 = Encode(1024, 2048)
-            
+
         #self.Expand5 = Decode(2048, 1024)
         self.Expand4 = Decode(1024, 512)
         self.Expand3 = Decode(512, 256)
         self.Expand2 = Decode(256, 128)
         self.Expand1 = Decode(128, 64)
 
-        self.OutConv = nn.Conv2d(64, out_ch, 1) # 1x1 convolution to transfer back to out channel
+        self.OutConv = nn.Conv2d(64, out_ch, 1)  # 1x1 convolution to transfer back to out channel
 
     def forward(self, x):
         x1 = self.InConvBatch(x)
@@ -79,7 +83,7 @@ class UNet(nn.Module):
         x4 = self.Contract3(x3)
         x = self.Contract4(x4)
         #x = self.Contract5(x5)
-        
+
         #x = self.Expand5(x, x5)
         x = self.Expand4(x, x4)
         x = self.Expand3(x, x3)

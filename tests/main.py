@@ -1,32 +1,26 @@
-import torch
-import matplotlib.pyplot as plt
 from torchvision import transforms
+
+from data_augmentation import *
+
+from train import *
+from unet import *
+import torch.nn as nn
+import torch.optim as optim
 
 if __name__ == "__main__":
     train_dir = "train_data.pkl"
-    noisy_imgs_1, noisy_imgs_2 = torch.load("train_data.pkl")
+    noisy_imgs_1, noisy_imgs_2 = torch.load(train_dir)
+    dataset = NoisyDataset(noisy_imgs_1, noisy_imgs_2)
 
-    image_ind = 65
+    aug_dataset = augment_data_rotation(dataset)
 
-    plt.imshow((noisy_imgs_1[image_ind].float() / 255.0).permute(1, 2, 0))
-    plt.savefig("display_before")
+    sample_plot_dataset(aug_dataset)
 
-    #ColorJitter
-    #RandomApply
-    #RandomHorizontalFlip
-    #RandomPerspective
-    #RandomVerticalFlip
-    #GaussianBlur
-    #RandomInvert
-    #RandomResizedCrop
+    model = UNet(3, 3)
+    optim = optim.Adam(model.parameters(), lr=10e-4)
+    loss_fn = nn.MSELoss()
 
-    augmentation = transforms.Compose([
-        transforms.RandomRotation((90, 90)),
-        transforms.RandomInvert(),
-        transforms.RandomVerticalFlip(),
-    ])
-    for ind in range(noisy_imgs_1.shape[0]):
-        augmentation(noisy_imgs_1[ind])
-
-    plt.imshow((augmentation(noisy_imgs_1[image_ind]).float() / 255.0).permute(1, 2, 0))
-    plt.savefig("display_after")
+    model_outputs = train_model(input_dataset=aug_dataset,
+                                load_model=False, save_model=False,
+                                model=model, optimizer=optim, loss_fn=loss_fn,
+                                batch_size=256, num_epochs=10)
