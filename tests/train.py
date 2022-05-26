@@ -1,9 +1,10 @@
 # for terminal
-from tqdm import tqdm
+# from tqdm import tqdm
 # for notebooks
-# import tqdm.notebook as tqdm
+import tqdm.notebook as tqdm
 from model import *
 
+train_dir = "train_data.pkl"
 val_dir = "val_data.pkl"
 
 
@@ -13,11 +14,11 @@ def compute_psnr(denoised, target, max_range=1.0):
         ((denoised - target) ** 2).mean((1, 2, 3))).mean()
 
 
-def train_model(input_dataset=None, load_model=False, save_model=False, model=None, optimizer=None, loss_fn=None,
+def train_model(load_model=False, save_model=False, model=None, optimizer=None, loss_fn=None,
                 batch_size=100, num_epochs=1):
     model = Model(model=model)
 
-    train_input0, train_input1 = input_dataset.X, input_dataset.Y
+    train_input0, train_input1 = torch.load(train_dir)
     val_input, val_target = torch.load(val_dir)
 
     train_input0 = train_input0.float() / 255.0

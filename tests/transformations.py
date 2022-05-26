@@ -3,6 +3,21 @@ import abc
 import random
 
 
+def swap_aug(img1, img2):
+    img1 = img1.clone()
+    img2 = img2.clone()
+    h = random.randrange(2, img1.shape[1])
+    w = random.randrange(2, img1.shape[1])
+    h_start = random.randrange(0, h - 1)
+    h_end = h_start + h
+    w_start = random.randrange(0, w - 1)
+    w_end = w_start + w
+    tmp = img1[:, h_start:h_end, w_start:w_end].clone()
+    img1[:, h_start:h_end, w_start:w_end] = img2[:, h_start:h_end, w_start:w_end].clone()
+    img2[:, h_start:h_end, w_start:w_end] = tmp
+    return img1, img2
+
+
 class AugTransformation:
 
     @abc.abstractmethod

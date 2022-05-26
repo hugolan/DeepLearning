@@ -1,26 +1,17 @@
 # Make sure to only import from tqdm and not from tqdm.notebook when leaving the notebook
 # for terminal
-from tqdm import tqdm
+#from tqdm import tqdm
 # for notebooks
-# import tqdm.notebook as tqdm
-
+import tqdm.notebook as tqdm
 
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from unet import *
 
+from data_augmentation import augment_swap_data
+from dataset import *
 
-class NoisyDataset(Dataset):
-    def __init__(self, X, Y):
-        assert X.shape == Y.shape and X.ndim == 4
-        self.X = X
-        self.Y = Y
 
-    def __len__(self):
-        return self.X.shape[0]
-
-    def __getitem__(self, index):
-        return self.X[index], self.Y[index]
 
 
 class Model():
@@ -89,3 +80,4 @@ class Model():
         for epoch in tqdm(range(num_epochs)):
             dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
             self.train_epoch(dataloader, optimizer, loss_fn)
+            #dataset = augment_swap_data(dataset)
