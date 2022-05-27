@@ -126,8 +126,8 @@ class Conv2d(Module):
     def parameters(self):
         return [(self.weights, self.grad_weights), (self.bias, self.grad_bias)]
     
-    def load_parameters(self, paramaters):
-        (self.weights, self.grad_weights), (self.bias, self.grad_bias) = paramaters[0], parameters[1]
+    def load_parameters(self, parameters):
+        (self.weights, self.grad_weights), (self.bias, self.grad_bias) = parameters[0], parameters[1]
     
     
 class Upsample(Module):
@@ -194,8 +194,8 @@ class ReLU(Module):
     def forward(self, input_t):
         #max(0, x)
         torch_zeros = torch.empty(input_t.shape).fill_(0)
-        if device is not None:
-            torch_zeros = torch_zeros.to(device)
+        if self.device is not None:
+            torch_zeros = torch_zeros.to(self.device)
         self.relu = input_t.maximum(torch_zeros)
         return self.relu
         

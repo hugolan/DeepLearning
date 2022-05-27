@@ -3,6 +3,8 @@ from torch.utils.data import Dataset, DataLoader
 from others.dataset import NoisyDataset
 from others.network import *
 from others.modules import *
+import pickle
+
 
 class Model:
 
@@ -21,12 +23,16 @@ class Model:
     def load_pretrained_model(self, save_path="bestmodel.pth") -> None:
         pickle_in = open(save_path,"rb")
         model_parameters = pickle.load(pickle_in)
+        for i in range(len(model_parameters)):
+          self.model.parameters()[i][0].zero_()
+          self.model.parameters()[i][1].zero_()
+          self.model.parameters()[i][0].add_(model_parameters[i][0])
+          self.model.parameters()[i][1].add_(model_parameters[i][1])
+
         pickle_in.close()
 
     def predict(self, test_input) -> torch.Tensor:
-        test_in = test_input.float()/255.0
-        out = self.model.forward(test_in.to(self.device))
-        out = out * 255
+        out = self.model.forward(test_input.to(self.device))
         return out
 
     def train_epoch(self, loader, optimizer, loss_fn) -> None:
@@ -41,7 +47,7 @@ class Model:
 
             # backward
             optimizer.zero_grad()
-            model.backward(loss_fn.backward())
+            self.model.backward(loss_fn.backward())
             optimizer.step()
 
     def train(self, train_input, train_target, optimizer=None, loss_fn=None, num_epochs=10, batch_size=100,
@@ -52,7 +58,7 @@ class Model:
             loss_fn = MSELoss()
 
         if optimizer is None:
-            optimizer = Adam(self.model.parameters(), lr=learning_rate, device=self.device)
+            optimizer = Adam(self.model.parameters(), device=self.device)
 
         for epoch in range(num_epochs):
             dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
