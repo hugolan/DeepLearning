@@ -32,9 +32,7 @@ class Model:
         pickle_in.close()
 
     def predict(self, test_input) -> torch.Tensor:
-        test_in = test_input.float()/255.0
-        out = self.model.forward(test_in.to(self.device))
-        out = out * 255
+        out = self.model.forward(test_input.to(self.device))
         return out
 
     def train_epoch(self, loader, optimizer, loss_fn) -> None:
