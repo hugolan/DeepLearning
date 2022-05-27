@@ -126,8 +126,8 @@ class Conv2d(Module):
     def parameters(self):
         return [(self.weights, self.grad_weights), (self.bias, self.grad_bias)]
     
-    def load_parameters(self, paramaters):
-        (self.weights, self.grad_weights), (self.bias, self.grad_bias) = paramaters[0], parameters[1]
+    def load_parameters(self, parameters):
+        (self.weights, self.grad_weights), (self.bias, self.grad_bias) = parameters[0], parameters[1]
     
     
 class Upsample(Module):
