@@ -1,6 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 
+
 def plot_prediction_clean(img_noisy, img_clean, img_pred):
     assert img_noisy.ndim == img_clean.ndim == img_pred.ndim, "images should have same shape"
     if img_noisy.ndim == 4:

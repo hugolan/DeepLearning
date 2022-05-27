@@ -1,8 +1,8 @@
-import torch
+import math
 import torch.nn as nn
 
 
- class REDNet30(nn.Module):
+class REDNet10(nn.Module):
     def __init__(self, num_layers, num_features):
         super(REDNet10, self).__init__()
         conv_layers = []
@@ -30,9 +30,9 @@ import torch.nn as nn
         out += residual
         out = self.relu(out)
         return out
-   
 
- class REDNet30(nn.Module):
+
+class REDNet30(nn.Module):
     def __init__(self, num_layers=15, num_features=64):
         super(REDNet30, self).__init__()
         self.num_layers = num_layers
