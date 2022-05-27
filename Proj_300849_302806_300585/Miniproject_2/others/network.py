@@ -26,3 +26,8 @@ class CustomNN(Module):
     
     def parameters(self):
         return self.params
+    
+    def load_pretrained_model(self, model_parameters):
+        for i, module in enumerate(self.seq.modules()):
+            if len(model_parameters[i]) != 0: #only conv2d has paramaters
+                module.load_parameters(model_parameters[i])

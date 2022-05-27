@@ -13,12 +13,15 @@ class Model:
         else:
             self.model = model
 
-    def load_pretrained_model(self, filename="bestmodel") -> None:
-        checkpoint = torch.load(filename + ".pth", map_location=self.device)
-        self.model.load_state_dict(checkpoint['model_state_dict'])
+    def save_pretrained_model(self, save_path="bestmodel.pth"):
+        pickle_out = open(save_path,"wb")
+        pickle.dump(self.model.parameters(), pickle_out)
+        pickle_out.close()
 
-    def save_trained_model(self, filename="bestmodel") -> None:
-        torch.save({'model_state_dict': self.model.state_dict()}, filename + ".pth")
+    def load_pretrained_model(self, save_path="bestmodel.pth") -> None:
+        pickle_in = open(save_path,"rb")
+        model_parameters = pickle.load(pickle_in)
+        pickle_in.close()
 
     def predict(self, test_input) -> torch.Tensor:
         test_in = test_input.float()/255.0
