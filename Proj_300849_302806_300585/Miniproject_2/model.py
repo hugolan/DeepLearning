@@ -52,7 +52,7 @@ class Model:
             loss_fn = MSELoss()
 
         if optimizer is None:
-            optimizer = Adam(self.model.parameters(), lr=learning_rate, device=self.device)
+            optimizer = Adam(self.model.parameters(), device=self.device)
 
         for epoch in range(num_epochs):
             dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
