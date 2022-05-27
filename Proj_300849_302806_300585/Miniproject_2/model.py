@@ -21,6 +21,12 @@ class Model:
     def load_pretrained_model(self, save_path="bestmodel.pth") -> None:
         pickle_in = open(save_path,"rb")
         model_parameters = pickle.load(pickle_in)
+        for i in range(len(model_parameters)):
+          self.model.parameters()[i][0].zero_()
+          self.model.parameters()[i][1].zero_()
+          self.model.parameters()[i][0].add_(model_parameters[i][0])
+          self.model.parameters()[i][1].add_(model_parameters[i][1])
+
         pickle_in.close()
 
     def predict(self, test_input) -> torch.Tensor:
