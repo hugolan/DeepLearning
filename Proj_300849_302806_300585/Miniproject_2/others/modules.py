@@ -194,7 +194,7 @@ class ReLU(Module):
     def forward(self, input_t):
         #max(0, x)
         torch_zeros = torch.empty(input_t.shape).fill_(0)
-        if device is not None:
+        if self.device is not None:
             torch_zeros = torch_zeros.to(device)
         self.relu = input_t.maximum(torch_zeros)
         return self.relu
