@@ -2,9 +2,9 @@
 from tqdm.notebook import tqdm
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
-from dataset import NoisyDataset
-from unet import *
-from data_augmentation import augment_swap_data
+from others.dataset import NoisyDataset
+from others.unet import *
+from others.data_augmentation import augment_swap_data
 
 class Model:
 
