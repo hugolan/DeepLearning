@@ -41,7 +41,7 @@ class Model:
 
             # backward
             optimizer.zero_grad()
-            model.backward(loss_fn.backward())
+            self.model.backward(loss_fn.backward())
             optimizer.step()
 
     def train(self, train_input, train_target, optimizer=None, loss_fn=None, num_epochs=10, batch_size=100,
