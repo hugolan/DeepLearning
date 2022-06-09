@@ -32,14 +32,15 @@ class Model:
         pickle_in.close()
 
     def predict(self, test_input) -> torch.Tensor:
-        out = self.model.forward(test_input.to(self.device))
+        test_in = test_input.float()
+        out = self.model.forward(test_in.to(self.device))
         return out
 
     def train_epoch(self, loader, optimizer, loss_fn) -> None:
 
         for data, targets in loader:
-            data = data.to(self.device)
-            targets = targets.to(self.device)
+            data = data.float().to(self.device)
+            targets = targets.float().to(self.device)
 
             # forward
             predictions = self.model.forward(data)

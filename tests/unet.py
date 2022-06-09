@@ -72,7 +72,10 @@ class UNet(nn.Module):
         self.Expand2 = Decode(256, 128, p_drop_decode=p_drop_decode, p_drop_conv2d=p_drop_conv2d)
         self.Expand1 = Decode(128, 64, p_drop_decode=p_drop_decode, p_drop_conv2d=p_drop_conv2d)
 
-        self.OutConv = nn.Conv2d(64, out_ch, 1)  # 1x1 convolution to transfer back to out channel
+        self.OutConv = nn.Sequential(
+            nn.Conv2d(64, out_ch, 1),  # 1x1 convolution to transfer back to out channel
+            nn.ReLU(inplace=True)
+        )
 
     def forward(self, x):
         x1 = self.InConvBatch(x)

@@ -24,20 +24,21 @@ class Model:
 
     def predict(self, test_input) -> torch.Tensor:
         torch.cuda.empty_cache()
-        test_in = test_input.float()/255.0
+        test_in = test_input.float()
+        #test_in = test_input.float()/255.0
         self.model.eval()
         with torch.no_grad():
             out = self.model(test_in.to(self.device))
-            out = out * 255
+            #out = out * 255
             return out
 
     def train_epoch(self, loader, optimizer, loss_fn) -> None:
-        scaler = None if not torch.cuda.is_available() else torch.cuda.amp.GradScaler()  # Speedup computation tricks. See https://pytorch.org/docs/stable/amp.html
+        scaler = None #if not torch.cuda.is_available() else torch.cuda.amp.GradScaler()  # Speedup computation tricks. See https://pytorch.org/docs/stable/amp.html
         loop = tqdm(loader)
 
         for data, targets in loop:
-            data = data.to(self.device)
-            targets = targets.to(self.device)
+            data = data.float().to(self.device)
+            targets = targets.float().to(self.device)
 
             # forward
             if scaler is not None:
