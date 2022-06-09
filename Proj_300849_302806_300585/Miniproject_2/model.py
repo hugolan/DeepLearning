@@ -1,26 +1,26 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
-from others.dataset import NoisyDataset
-from others.network import *
-from others.modules import *
+from .others.dataset import NoisyDataset
+from .others.network import *
+from .others.modules import *
 import pickle
 
 
 class Model:
 
     def __init__(self, model=None) -> None:
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cpu')#torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         if model is None:
             self.model = CustomNN(3, 3, device=self.device)
         else:
             self.model = model
 
-    def save_pretrained_model(self, save_path="bestmodel.pth"):
+    def save_pretrained_model(self, save_path="Proj_300849_302806_300585/Miniproject_2/bestmodel.pth"):
         pickle_out = open(save_path,"wb")
         pickle.dump(self.model.parameters(), pickle_out)
         pickle_out.close()
 
-    def load_pretrained_model(self, save_path="bestmodel.pth") -> None:
+    def load_pretrained_model(self, save_path="Proj_300849_302806_300585/Miniproject_2/bestmodel.pth") -> None:
         pickle_in = open(save_path,"rb")
         model_parameters = pickle.load(pickle_in)
         for i in range(len(model_parameters)):

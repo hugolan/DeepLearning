@@ -2,25 +2,25 @@
 from tqdm.notebook import tqdm
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
-from others.dataset import NoisyDataset
-from others.unet import *
-from others.data_augmentation import augment_swap_data
+from .others.dataset import NoisyDataset
+from .others.unet import *
+from .others.data_augmentation import augment_swap_data
 
 class Model:
 
     def __init__(self, model=None) -> None:
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cpu')#torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         if model is None:
             self.model = UNet(3, 3).to(self.device)
         else:
             self.model = model.to(self.device)
 
-    def load_pretrained_model(self, filename="bestmodel") -> None:
-        checkpoint = torch.load(filename + ".pth", map_location=self.device)
+    def load_pretrained_model(self, filename="Proj_300849_302806_300585/Miniproject_1/bestmodel.pth") -> None:
+        checkpoint = torch.load(filename, map_location=self.device)
         self.model.load_state_dict(checkpoint['model_state_dict'])
 
-    def save_trained_model(self, filename="bestmodel") -> None:
-        torch.save({'model_state_dict': self.model.state_dict()}, filename + ".pth")
+    def save_trained_model(self, filename="Proj_300849_302806_300585/Miniproject_1/bestmodel.pth") -> None:
+        torch.save({'model_state_dict': self.model.state_dict()}, filename)
 
     def predict(self, test_input) -> torch.Tensor:
         torch.cuda.empty_cache()

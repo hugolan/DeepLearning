@@ -1,3 +1,4 @@
+import torch
 from torch import empty, cat, arange
 from torch.nn.functional import fold, unfold
 import math
@@ -29,17 +30,16 @@ class Conv2d(Module):
         self.padding = padding
         mean = 0
         std = math.sqrt(2.0 / (kernel_size*kernel_size*out_channels))
-        #self.weights = torch.empty((out_channels, in_channels, kernel_size, kernel_size), dtype=torch.float).normal_(mean=mean, std=std)
-        self.weights = torch.empty((out_channels, in_channels, kernel_size, kernel_size), dtype=torch.float).fill_(0.01)
-        self.grad_weights = torch.empty((out_channels, in_channels, kernel_size, kernel_size), dtype=torch.float).zero_()    
+        self.weight = torch.empty((out_channels, in_channels, kernel_size, kernel_size), dtype=torch.float).normal_(mean=mean, std=std)
+        self.grad_weight = torch.empty((out_channels, in_channels, kernel_size, kernel_size), dtype=torch.float).zero_()    
         self.bias = None
         self.grad_bias = None
         if bias:
-            self.bias = torch.empty((out_channels), dtype=torch.float).normal_(mean=mean, std=std)#.fill_(1e-3)
+            self.bias = torch.empty((out_channels), dtype=torch.float).normal_(mean=mean, std=std)
             self.grad_bias = torch.empty((out_channels), dtype=torch.float).zero_()
         if device is not None:
-            self.weights = self.weights.to(device)
-            self.grad_weights = self.grad_weights.to(device)
+            self.weight = self.weight.to(device)
+            self.grad_weight = self.grad_weight.to(device)
             self.bias = self.bias.to(device)
             self.grad_bias = self.grad_bias.to(device)
 
@@ -72,7 +72,7 @@ class Conv2d(Module):
         
         #Reshape the kernel so as to match the shape of patches in patches tensor. Note that each row in the patches tensor is of size C*K*K,
         # and each row in the reshaped kernel is also of size (C*K*K).
-        kernel_w = self.weights.view(self.out_channels, -1)
+        kernel_w = self.weight.view(self.out_channels, -1)
         
         #For matrix multiplication (apply the kernel on the patches) of the patches tensor with the reshaped kernel, we transpose the reshaped kernel so as to have C*K*K rows.
         kernel_w = kernel_w.t()
@@ -101,7 +101,7 @@ class Conv2d(Module):
         
         #Compute gradient of loss wrt input using the kernel weights. Resulting shape (N, out_size_y*out_size_x, C*K*K).
         #C = A@B => d_l/d_A = d_l/d_C @ B.t, out = in@weights => d_l/d_in = d_l/d_out @ weights
-        grad_input_unfolded = grad_out_reshaped @ self.weights.view(self.out_channels, -1)
+        grad_input_unfolded = grad_out_reshaped @ self.weight.view(self.out_channels, -1)
         
         #Reshape gradient of loss wrt input by "unpatching" the images to obtain a (N, C, in_size_y, in_size_x) tensor
         grad_input = torch.nn.functional.fold(grad_input_unfolded.transpose(1, 2), (self.in_size_y, self.in_size_x),(self.kernel_size, self.kernel_size), padding=self.padding, stride=self.stride)
@@ -115,7 +115,7 @@ class Conv2d(Module):
         grad_weights = grad_weights.sum(dim=0)
         
         #Reshape to obtain original weights shape (out_channels, in_channels (C), K, K)
-        self.grad_weights.add_(grad_weights.t().view(self.out_channels, self.in_channels, self.kernel_size, self.kernel_size))
+        self.grad_weight.add_(grad_weights.t().view(self.out_channels, self.in_channels, self.kernel_size, self.kernel_size))
         
         if self.bias is not None:
             #For each image, sum over full image to obtain 1 bias value for each "out_channel" channel.
@@ -124,10 +124,10 @@ class Conv2d(Module):
         return grad_input
         
     def parameters(self):
-        return [(self.weights, self.grad_weights), (self.bias, self.grad_bias)]
+        return [(self.weight, self.grad_weight), (self.bias, self.grad_bias)]
     
     def load_parameters(self, parameters):
-        (self.weights, self.grad_weights), (self.bias, self.grad_bias) = parameters[0], parameters[1]
+        (self.weight, self.grad_weight), (self.bias, self.grad_bias) = parameters[0], parameters[1]
     
     
 class Upsample(Module):

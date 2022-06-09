@@ -24,11 +24,9 @@ class Model:
 
     def predict(self, test_input) -> torch.Tensor:
         torch.cuda.empty_cache()
-        test_in = test_input.float()/255.0
         self.model.eval()
         with torch.no_grad():
-            out = self.model(test_in.to(self.device))
-            out = out * 255
+            out = self.model(test_input.to(self.device))
             return out
 
     def train_epoch(self, loader, optimizer, loss_fn) -> None:

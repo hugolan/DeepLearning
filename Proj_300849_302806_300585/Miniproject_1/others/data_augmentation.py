@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import torch
 from tqdm.notebook import tqdm
 
-from dataset import NoisyDataset
+from .dataset import NoisyDataset
 
-from transformations import *
+from .transformations import *
 
 
 def plot_aug(aug_imgs, save_path="imgs/aug_plot"):
